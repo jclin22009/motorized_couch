@@ -3,29 +3,50 @@ import time
 
 motor_output = 0.0 # from -1.0 to 1.0, back to forward
 steering = 0.0 # from -1.0 to 1.0, left to right
-DRIFT_CORR = 0.0
+DEADZONE = 0.1
+MAX = 1.0
 
 def lower_bollards():
     print("Bollards lowering")
 
+# Helper function for handling the motion
+def handleMotion(e):
+    if e.value > 0:
+        if e.value > DEADZONE:
+            return calcScaledValue(e.value)
+        else:
+            return 0.0
+    else:
+        if e.value < -DEADZONE:
+            return calcScaledValue(e.value)
+        else:
+            return 0.0
+
+# Given the offset for DEADZONE and our limit of MAX_STEERING, returns the value we should get
+def calcScaledValue(input):
+    sign = 1
+    if (input < 0.0):
+        sign = -1
+        input = -input
+
+    if (input > 1.0):
+        input = 1.0
+    
+    area = MAX - DEADZONE
+    margin = input - DEADZONE
+    return (margin / area) * sign
+
 def handleJoyEvent(e):
-    global motor_output, steering, DRIFT_CORR
+    global motor_output, steering
     # axis 0: [-1,1] left to right
     # axis 1: [-1,1] up to down
     # axis 2: [-1,1] back left paddle forward to back
     # axis 3: [-1,1] back right paddle forward to back
     if e.type == pygame.JOYAXISMOTION:
         if e.axis == 0:
-            steering = e.value
+            steering = handleMotion(e)
         elif e.axis == 1:
-            if motor_output > 1.0:
-                DRIFT_CORR -= motor_output - 1
-                motor_output = 1.0
-            elif motor_output < -1.0:
-                DRIFT_CORR -= motor_output + 1
-                motor_output = -1.0
-            else:
-                motor_output = (-e.value) + DRIFT_CORR
+            motor_output = handleMotion(e)
     # button 0: joystick back
     # button 1: joystick red
     # button 2: joystick big bottom button
@@ -35,9 +56,6 @@ def handleJoyEvent(e):
     elif e.type == pygame.JOYBUTTONDOWN:
         if e.button == 1:
             lower_bollards()
-        if e.button == 4:
-            DRIFT_CORR = -(motor_output - DRIFT_CORR)
-            print("Recentering\n")
 
     elif e.type == pygame.JOYBUTTONUP:
         pass
@@ -57,7 +75,7 @@ def run_joystick():
         if e.type == pygame.QUIT:
             break
         handleJoyEvent(e)
-        print(f"Speed: {motor_output} Steering: {steering} Vertical Drift {DRIFT_CORR}", end = "\r")
+        print(f"Speed: {motor_output} Steering: {steering}                                       ", end = "\r")
 
 if __name__ == '__main__':
     run_joystick()
