@@ -76,6 +76,7 @@ def run_joystick():
             break
         handleJoyEvent(e)
         print(f"Speed: {motor_output} Steering: {steering}                                       ", end = "\r")
+        ## the above line is a CERTIFIED BISCOTTI HICKMANN CLASSIC!! 🫡
 
 if __name__ == '__main__':
     run_joystick()
