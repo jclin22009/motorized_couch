@@ -10,5 +10,5 @@ if __name__ == "__main__":
     tracker = Tracker(state, track_shirt)
     tracker.connect_to_device(dev_idx=0)
     threading.Thread(target=pid_loop, args=[state]).start()
-    threading.Thread(target=arduino_loop, args=[state, "/dev/tty.usbserial-DJ00S8X2"]).start()
+    threading.Thread(target=arduino_loop, args=[state, "/dev/tty.usbserial-DB00JLKU"]).start()
     tracker.loop()

@@ -3,7 +3,7 @@ import time
 import serial
 from threading import Thread
 
-arduino = serial.Serial(port='/dev/tty.usbserial-DJ00S8X2', baudrate=115200, timeout=.1)
+arduino = serial.Serial(port='/dev/tty.usbserial-DB00JLKU', baudrate=115200, timeout=.1)
 
 def write_read(x):
     arduino.write(bytes(x, 'utf-8'))

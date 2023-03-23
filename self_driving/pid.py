@@ -3,16 +3,16 @@ import time
 import numpy as np
 from state import State, SAMPLE_TIME
 
-MAX_SPEED = 50
+MAX_SPEED = 60
 DESIRED_DEPTH = 1
-steering_pid = PID(-20, 0, 20, setpoint=0)
-speed_pid = PID(-60, 0, 20, setpoint=0)
+steering_pid = PID(-80, 0, -40, setpoint=0)
+speed_pid = PID(-40, 0, -25, setpoint=0)
 
 steering_pid.sample_time = SAMPLE_TIME
 speed_pid.sample_time = SAMPLE_TIME
 
-steering_pid.output_limits = (-MAX_SPEED / 2, MAX_SPEED / 2)
-speed_pid.output_limits = (0, MAX_SPEED / 2)
+steering_pid.output_limits = (-MAX_SPEED * 2/3, MAX_SPEED * 2/3)
+speed_pid.output_limits = (0, MAX_SPEED * 1/3)
 
 def pid_loop(state: State):
     while True:
