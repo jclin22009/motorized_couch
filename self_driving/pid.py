@@ -5,8 +5,8 @@ from state import State, SAMPLE_TIME
 
 MAX_SPEED = 60
 DESIRED_DEPTH = 1
-steering_pid = PID(-80, 0, -40, setpoint=0)
-speed_pid = PID(-40, 0, -25, setpoint=0)
+steering_pid = PID(-40, 0, -60, setpoint=0)
+speed_pid = PID(-10, 0, -30, setpoint=0)
 
 steering_pid.sample_time = SAMPLE_TIME
 speed_pid.sample_time = SAMPLE_TIME
@@ -26,8 +26,16 @@ def pid_loop(state: State):
             speed_pid.auto_mode = True
             steering = steering_pid(state.theta)
             speed = speed_pid(state.z - DESIRED_DEPTH)
-            state.left_speed = int(speed + max(0, steering))
-            state.right_speed = int(speed - min(0, steering))
+            left_speed = int(speed + steering)
+            right_speed = int(speed - steering)
+            if left_speed < 0:
+                # right_speed = right_speed - left_speed
+                left_speed = 0
+            elif right_speed < 0:
+                # left_speed = left_speed - right_speed
+                right_speed = 0
+            state.left_speed = left_speed
+            state.right_speed = right_speed
         
         print(state)
         time.sleep(SAMPLE_TIME)
