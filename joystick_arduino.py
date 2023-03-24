@@ -88,8 +88,8 @@ def run_joystick():
 
 def update_arduino():
     while True:
-        left_speed = int(70 * max(motor_output + steering, 0))
-        right_speed = int(70 * max(motor_output - steering, 0))
+        left_speed = int(40 * max(motor_output + steering, 0))
+        right_speed = int(40 * max(motor_output - steering, 0))
         # average_speed = 50 * motor_output
         # scaled_steering = 20 * steering
         # left_speed = int(max(average_speed + scaled_steering, 0))

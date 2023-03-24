@@ -1,6 +1,5 @@
 from simple_pid import PID
 import time
-import numpy as np
 from state import State, SAMPLE_TIME
 
 MAX_SPEED = 60
@@ -26,14 +25,8 @@ def pid_loop(state: State):
             speed_pid.auto_mode = True
             steering = steering_pid(state.theta)
             speed = speed_pid(state.z - DESIRED_DEPTH)
-            left_speed = int(speed + steering)
-            right_speed = int(speed - steering)
-            if left_speed < 0:
-                # right_speed = right_speed - left_speed
-                left_speed = 0
-            elif right_speed < 0:
-                # left_speed = left_speed - right_speed
-                right_speed = 0
+            left_speed = max(int(speed + steering), 0)
+            right_speed = max(int(speed - steering), 0)
             state.left_speed = left_speed
             state.right_speed = right_speed
         

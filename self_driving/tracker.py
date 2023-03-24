@@ -49,25 +49,18 @@ class Tracker:
 
     def loop(self):
         while True:
-            self.event.wait()  # Wait for new frame to arrive
+            self.event.wait()
 
-            # Copy the newly arrived RGBD frame
+            # Retrieve depth and color maps
             depth = self.session.get_depth_frame()
             rgb = self.session.get_rgb_frame()
             intrinsic_mat = self.get_intrinsic_mat_from_coeffs(self.session.get_intrinsic_mat())
-            camera_pose = self.session.get_camera_pose()  # Quaternion + world position (accessible via camera_pose.[qx|qy|qz|qw|tx|ty|tz])
-
-            # print(intrinsic_mat)
-
-            # You can now e.g. create point cloud by projecting the depth map using the intrinsic matrix.
-
-            # Postprocess it
             if self.session.get_device_type() == self.DEVICE_TYPE__TRUEDEPTH:
                 depth = cv2.flip(depth, 1)
                 rgb = cv2.flip(rgb, 1)
-
             rgb = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
+            # Find shirt
             rgb_with_shirt, cx, cy, w, h = self.tracker_fn(rgb)
 
             sol = np.linalg.inv(intrinsic_mat) @ np.array([cx, cy, 1])
@@ -88,7 +81,7 @@ class Tracker:
                 self.state.y = y
             self.state.z = z
 
-            # Show the RGBD Stream
+            # Show the color and depth images
             cv2.imshow('RGB', rgb_with_shirt)
             cv2.imshow('Depth', depth)
             cv2.waitKey(1)
