@@ -8,14 +8,33 @@
 #define rightMotorMin 55
 #define rightMotorMax 175
 
+#define leftRelay1 2
+#define leftRelay2 4
+#define rightRelay1 8
+#define rightRelay2 7
+
 int speed = 0;
 int currentLeftSpeed = 0;
 int currentRightSpeed = 0;
 void setSpeed(int leftSpeed, int rightSpeed) {
-  leftSpeed = constrain(leftSpeed, speedMin, speedMax);
-  int leftPower = map(leftSpeed, speedMin, speedMax, leftMotorMin, leftMotorMax);
-  rightSpeed = constrain(rightSpeed, speedMin, speedMax);
-  int rightPower = map(rightSpeed, speedMin, speedMax, rightMotorMin, rightMotorMax);
+  leftSpeed = constrain(leftSpeed, 0, speedMax);
+  int leftPower = map(abs(leftSpeed), speedMin, speedMax, leftMotorMin, leftMotorMax);
+  rightSpeed = constrain(rightSpeed, 0, speedMax);
+  int rightPower = map(abs(rightSpeed), speedMin, speedMax, rightMotorMin, rightMotorMax);
+  // if (leftSpeed >= 0) {
+  //   digitalWrite(leftRelay1, HIGH);
+  //   digitalWrite(leftRelay2, LOW);
+  // } else {
+  //   digitalWrite(leftRelay1, LOW);
+  //   digitalWrite(leftRelay2, HIGH);
+  // }
+  // if (rightSpeed >= 0) {
+  //   digitalWrite(rightRelay1, HIGH);
+  //   digitalWrite(rightRelay2, LOW);
+  // } else {
+  //   digitalWrite(rightRelay1, LOW);
+  //   digitalWrite(rightRelay2, HIGH);
+  // }
   analogWrite(leftMotor, leftPower);
   analogWrite(rightMotor, rightPower);
 }
@@ -23,6 +42,10 @@ void setSpeed(int leftSpeed, int rightSpeed) {
 void setup() {
   pinMode(leftMotor, OUTPUT);
   pinMode(rightMotor, OUTPUT);
+  pinMode(leftRelay1, OUTPUT);
+  pinMode(leftRelay2, OUTPUT);
+  pinMode(rightRelay1, OUTPUT);
+  pinMode(rightRelay2, OUTPUT);
   Serial.begin(115200);
   Serial.setTimeout(1);
   // setSpeed(100, 100);
