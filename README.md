@@ -1,3 +1,5 @@
 # motorized_couch
 
-https://www.tiktok.com/@horsebeforecouch/video/7219197568213962027?lang=en
+As seen on tiktok
+
+https://www.tiktok.com/@horsebeforecouch/video/7219792981576977706
