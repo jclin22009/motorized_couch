@@ -1,15 +1,12 @@
 import pygame
-import time
-import serial
+from pyvesc import VESC
 from threading import Thread
+import numpy as np
 
-arduino = serial.Serial(port='/dev/cu.usbmodem11201', baudrate=115200, timeout=.1)
-
-def write_read(x):
-    arduino.write(bytes(x, 'utf-8'))
-    time.sleep(0.05)
-    data = arduino.readline()
-    return data
+left_esc = '/dev/cu.usbmodem3'
+right_esc = '/dev/cu.usbmodem3011'
+left_motor = VESC(serial_port=left_esc)
+right_motor = VESC(serial_port=right_esc)
 
 motor_output = 0.0 # from -1.0 to 1.0, back to forward
 steering = 0.0 # from -1.0 to 1.0, left to right
@@ -20,6 +17,9 @@ SLOW_SPEED = 25
 MEDIUM_SPEED = 50
 FAST_SPEED = 100
 max_speed = SLOW_SPEED
+
+def map_range(x, in_min, in_max, out_min, out_max):
+  return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 def lower_bollards():
     print("Bollards lowering")
@@ -106,8 +106,12 @@ def update_arduino():
         # left_speed = int(max(average_speed + scaled_steering, 0))
         # right_speed = int(max(average_speed - scaled_steering, 0))
         print(f"Left: {left_speed} Right: {right_speed} Speed: {motor_output} Steering: {steering}")
-        value = write_read(f"{left_speed} {right_speed}")
-        print(value.strip())
+        abs_left_speed = abs(left_speed)
+        abs_right_speed = abs(right_speed)
+        left_rpm = 0 if abs_left_speed < 10 else map_range(abs_left_speed, 0, 100, 3000, 8000)
+        right_rpm = 0 if abs_right_speed < 10 else map_range(abs_right_speed, 0, 100, 3000, 8000)
+        left_motor.set_rpm(-np.sign(left_speed) * left_rpm)
+        right_motor.set_rpm(np.sign(right_speed) * right_rpm)
 
 if __name__ == '__main__':
     # sudo pmset -a disablesleep 1
