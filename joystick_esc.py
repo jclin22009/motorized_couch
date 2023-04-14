@@ -96,20 +96,22 @@ def handle_motion():
         target_left_rpm = 0
         target_right_rpm = 0
     else:
-        left_speed = int(max_speed * (motor_output + (1 - 0.8 * motor_output) * steering))
-        right_speed = int(max_speed * (motor_output - (1 -  0.8 * motor_output) * steering))
+        left_speed = int(max_speed * (motor_output + (1 - 0.8 * motor_output) * 0.5 * steering))
+        right_speed = int(max_speed * (motor_output - (1 -  0.8 * motor_output) * 0.5 * steering))
         abs_left_speed = abs(left_speed)
         abs_right_speed = abs(right_speed)
-        abs_left_rpm = 0 if abs_left_speed < 0 else map_range(abs_left_speed, 0, 100, 3000, 8000)
-        abs_right_rpm = 0 if abs_right_speed < 0 else map_range(abs_right_speed, 0, 100, 3000, 8000)
+        abs_left_rpm = 0 if abs_left_speed < 5 else map_range(abs_left_speed, 0, 100, 0, 5000)
+        abs_right_rpm = 0 if abs_right_speed < 5 else map_range(abs_right_speed, 0, 100, 0, 5000)
         target_left_rpm = np.sign(left_speed) * abs_left_rpm
         target_right_rpm = np.sign(right_speed) * abs_right_rpm
         print(f"Left: {left_speed}/{target_left_rpm} Right: {right_speed}/{target_right_rpm} Speed: {motor_output} Steering: {steering}")
     
-    left_rpm += 0.001 * (target_left_rpm - left_rpm)
-    right_rpm += 0.001 * (target_right_rpm - right_rpm)
-    left_motor.set_rpm(int(left_rpm))
-    right_motor.set_rpm(int(right_rpm))
+    # left_rpm += 0.001 * (target_left_rpm - left_rpm)
+    # right_rpm += 0.001 * (target_right_rpm - right_rpm)
+    # left_motor.set_rpm(int(left_rpm))
+    # right_motor.set_rpm(int(right_rpm))
+    left_motor.set_rpm(int(target_left_rpm))
+    right_motor.set_rpm(int(target_right_rpm))
 
 
 def run_joystick():
