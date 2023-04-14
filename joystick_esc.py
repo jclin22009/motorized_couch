@@ -3,13 +3,13 @@ from pyvesc import VESC
 from threading import Thread
 import numpy as np
 
-left_esc = '/dev/cu.usbmodem3'
-right_esc = '/dev/cu.usbmodem3011'
+left_esc = '/dev/cu.usbmodem3011'
+right_esc = '/dev/cu.usbmodem3'
 left_motor = VESC(serial_port=left_esc)
 right_motor = VESC(serial_port=right_esc)
 
-motor_output = 0.0 # from -1.0 to 1.0, back to forward
-steering = 0.0 # from -1.0 to 1.0, left to right
+steering = 0
+motor_output = 0
 DEADZONE = 0.1
 MAX = 1.0
 
@@ -18,11 +18,10 @@ MEDIUM_SPEED = 50
 FAST_SPEED = 100
 max_speed = SLOW_SPEED
 
+braking = False
+
 def map_range(x, in_min, in_max, out_min, out_max):
   return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
-
-def lower_bollards():
-    print("Bollards lowering")
 
 # Helper function for handling the motion
 def handleMotion(e):
@@ -52,7 +51,7 @@ def calcScaledValue(input):
     return (margin / area) * sign
 
 def handleJoyEvent(e):
-    global max_speed, motor_output, steering
+    global steering, motor_output, max_speed, braking
     # axis 0: [-1,1] left to right
     # axis 1: [-1,1] up to down
     # axis 2: [-1,1] back left paddle forward to back
@@ -70,20 +69,48 @@ def handleJoyEvent(e):
     # button 12-13: red dial A and B
     elif e.type == pygame.JOYBUTTONDOWN:
         if e.button == 1:
-            lower_bollards()
+            return True # Stop running
+        elif e.button == 2 or e.button == 3:
+            braking = True
         elif e.button == 12: # Mode A
             max_speed = MEDIUM_SPEED
         elif e.button == 13: # Mode B
             max_speed = FAST_SPEED
 
     elif e.type == pygame.JOYBUTTONUP:
-        if e.button == 12 or e.button == 13:
+        if e.button == 2 or e.button == 3:
+            braking = False
+        elif e.button == 12 or e.button == 13:
             max_speed = SLOW_SPEED
 
     # hats follow the ([-1,1], [-1,1]) coordinates you expect
     elif e.type == pygame.JOYHATMOTION:
         print("Hat", e.hat, "moved to", e.value)
+
+left_rpm = 0
+right_rpm = 0
+
+def handle_motion():
+    global left_rpm, right_rpm
+    if braking:
+        target_left_rpm = 0
+        target_right_rpm = 0
+    else:
+        left_speed = int(max_speed * (motor_output + (1 - 0.8 * motor_output) * steering))
+        right_speed = int(max_speed * (motor_output - (1 -  0.8 * motor_output) * steering))
+        abs_left_speed = abs(left_speed)
+        abs_right_speed = abs(right_speed)
+        abs_left_rpm = 0 if abs_left_speed < 0 else map_range(abs_left_speed, 0, 100, 3000, 8000)
+        abs_right_rpm = 0 if abs_right_speed < 0 else map_range(abs_right_speed, 0, 100, 3000, 8000)
+        target_left_rpm = np.sign(left_speed) * abs_left_rpm
+        target_right_rpm = np.sign(right_speed) * abs_right_rpm
+        print(f"Left: {left_speed}/{target_left_rpm} Right: {right_speed}/{target_right_rpm} Speed: {motor_output} Steering: {steering}")
     
+    left_rpm += 0.001 * (target_left_rpm - left_rpm)
+    right_rpm += 0.001 * (target_right_rpm - right_rpm)
+    left_motor.set_rpm(int(left_rpm))
+    right_motor.set_rpm(int(right_rpm))
+
 
 def run_joystick():
     pygame.init()
@@ -94,28 +121,21 @@ def run_joystick():
         e = pygame.event.wait()
         if e.type == pygame.QUIT:
             break
-        handleJoyEvent(e)
-
-def update_arduino():
-    while True:
-        # 50 for one person
-        left_speed = int(max_speed * (motor_output + (1 - 0.8 * motor_output) * steering))
-        right_speed = int(max_speed * (motor_output - (1 -  0.8 * motor_output) * steering))
-        # average_speed = 50 * motor_output
-        # scaled_steering = 20 * steering
-        # left_speed = int(max(average_speed + scaled_steering, 0))
-        # right_speed = int(max(average_speed - scaled_steering, 0))
-        print(f"Left: {left_speed} Right: {right_speed} Speed: {motor_output} Steering: {steering}")
-        abs_left_speed = abs(left_speed)
-        abs_right_speed = abs(right_speed)
-        left_rpm = 0 if abs_left_speed < 10 else map_range(abs_left_speed, 0, 100, 3000, 8000)
-        right_rpm = 0 if abs_right_speed < 10 else map_range(abs_right_speed, 0, 100, 3000, 8000)
-        left_motor.set_rpm(-np.sign(left_speed) * left_rpm)
-        right_motor.set_rpm(np.sign(right_speed) * right_rpm)
+        if handleJoyEvent(e):
+            break
+        
+def update_motion():
+    while not stop_thread:
+        handle_motion()
 
 if __name__ == '__main__':
     # sudo pmset -a disablesleep 1
-    t = Thread(target=update_arduino)
+    stop_thread = False
+    t = Thread(target=update_motion)
     t.start()
     run_joystick()
+    stop_thread = True
+    t.join()
+    left_motor.stop_heartbeat()
+    right_motor.stop_heartbeat()
     # sudo pmset -a disablesleep 0
