@@ -2,11 +2,15 @@ import pygame
 from pyvesc import VESC
 from threading import Thread
 import numpy as np
+import serial
 
-left_esc = '/dev/cu.usbmodem3011'
-right_esc = '/dev/cu.usbmodem3'
-left_motor = VESC(serial_port=left_esc)
-right_motor = VESC(serial_port=right_esc)
+left_motor_dev = '/dev/cu.usbmodem3'
+right_motor_dev = '/dev/cu.usbmodem3041'
+arduino_dev = '/dev/cu.usbmodem11201'
+
+left_motor = VESC(serial_port=left_motor_dev)
+right_motor = VESC(serial_port=right_motor_dev)
+arduino = serial.Serial(port=arduino_dev, baudrate=9600)
 
 steering = 0
 motor_output = 0
@@ -70,8 +74,10 @@ def handleJoyEvent(e):
     elif e.type == pygame.JOYBUTTONDOWN:
         if e.button == 1:
             return True # Stop running
-        elif e.button == 2 or e.button == 3:
+        elif e.button == 2:
             braking = True
+        elif e.button == 3:
+            arduino.write(bytes("", 'utf-8'))
         elif e.button == 12: # Mode A
             max_speed = MEDIUM_SPEED
         elif e.button == 13: # Mode B
