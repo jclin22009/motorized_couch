@@ -4,13 +4,13 @@ from threading import Thread
 import numpy as np
 import serial
 
-left_motor_dev = '/dev/cu.usbmodem6'
-right_motor_dev = '/dev/cu.usbmodem3041'
-arduino_dev = '/dev/cu.usbmodem1301'
+left_motor_dev = '/dev/cu.usbmodem3041'
+right_motor_dev = '/dev/cu.usbmodem3'
+# arduino_dev = '/dev/cu.usbmodem1301'
 
 left_motor = VESC(serial_port=left_motor_dev)
 right_motor = VESC(serial_port=right_motor_dev)
-arduino = serial.Serial(port=arduino_dev, baudrate=9600)
+# arduino = serial.Serial(port=arduino_dev, baudrate=9600)
 
 steering = 0
 motor_output = 0
@@ -77,7 +77,8 @@ def handleJoyEvent(e):
         elif e.button == 2:
             braking = True
         elif e.button == 3:
-            arduino.write(bytes("\n", 'utf-8'))
+            # arduino.write(bytes("\n", 'utf-8'))
+            pass
         elif e.button == 12: # Mode A
             max_speed = MEDIUM_SPEED
         elif e.button == 13: # Mode B
@@ -106,11 +107,13 @@ def handle_motion():
         right_speed = int(max_speed * (motor_output - (1 -  0.8 * motor_output) * 0.5 * steering))
         abs_left_speed = abs(left_speed)
         abs_right_speed = abs(right_speed)
-        abs_left_rpm = 0 if abs_left_speed < 5 else map_range(abs_left_speed, 0, 100, 0, 5000)
-        abs_right_rpm = 0 if abs_right_speed < 5 else map_range(abs_right_speed, 0, 100, 0, 5000)
+        abs_left_rpm = 0 if abs_left_speed < 5 else map_range(abs_left_speed, 0, 100, 0, 10000)
+        abs_right_rpm = 0 if abs_right_speed < 5 else map_range(abs_right_speed, 0, 100, 0, 10000)
         target_left_rpm = np.sign(left_speed) * abs_left_rpm
         target_right_rpm = np.sign(right_speed) * abs_right_rpm
-        # print(f"Left: {left_speed}/{target_left_rpm} Right: {right_speed}/{target_right_rpm} Speed: {motor_output} Steering: {steering}")
+        target_left_rpm = max(0, target_left_rpm)
+        target_right_rpm = max(0, target_right_rpm)
+        print(f"Left: {left_speed}/{target_left_rpm} Right: {right_speed}/{target_right_rpm} Speed: {motor_output} Steering: {steering}")
     
     # left_rpm += 0.001 * (target_left_rpm - left_rpm)
     # right_rpm += 0.001 * (target_right_rpm - right_rpm)
@@ -118,6 +121,8 @@ def handle_motion():
     # right_motor.set_rpm(int(right_rpm))
     left_motor.set_rpm(int(target_left_rpm))
     right_motor.set_rpm(int(target_right_rpm))
+    # left_motor.set_current(int(target_left_rpm))
+    # right_motor.set_current(int(target_right_rpm))
 
 
 def run_joystick():
