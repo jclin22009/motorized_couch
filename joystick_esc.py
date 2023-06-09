@@ -4,12 +4,19 @@ from threading import Thread
 import numpy as np
 # import serial
 
+left_motor_dev = '/dev/cu.usbmodem10'
 right_motor_dev = '/dev/cu.usbmodem3041'
-left_motor_dev = '/dev/cu.usbmodem4'
-# arduino_dev = '/dev/cu.usbmodem1301'
 
-left_motor = VESC(serial_port=left_motor_dev)
-right_motor = VESC(serial_port=right_motor_dev)
+reversed = False # this line of code is a certified kevin classic 😎
+
+if reversed:
+    left_motor = VESC(serial_port=right_motor_dev)
+    right_motor = VESC(serial_port=left_motor_dev)
+else: 
+    left_motor = VESC(serial_port=left_motor_dev)
+    right_motor = VESC(serial_port=right_motor_dev)
+
+# arduino_dev = '/dev/cu.usbmodem1301'
 # arduino = serial.Serial(port=arduino_dev, baudrate=9600)
 
 steering = 0
