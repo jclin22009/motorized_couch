@@ -2,11 +2,12 @@
 
 ## Installation
 
-Install packages using pip.
-Make sure to install PyVESC by typing:
+Install PyVESC by typing:
 ```bash
 pip install git+https://github.com/LiamBindle/PyVESC.git
 ```
+
+And also install the `requirements.txt` with `pip3 install -r requirements.txt`
 
 As seen on tiktok
 
