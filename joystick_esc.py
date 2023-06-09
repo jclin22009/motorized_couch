@@ -2,10 +2,10 @@ import pygame
 from pyvesc import VESC
 from threading import Thread
 import numpy as np
-import serial
+# import serial
 
-left_motor_dev = '/dev/cu.usbmodem3041'
-right_motor_dev = '/dev/cu.usbmodem3'
+right_motor_dev = '/dev/cu.usbmodem3041'
+left_motor_dev = '/dev/cu.usbmodem4'
 # arduino_dev = '/dev/cu.usbmodem1301'
 
 left_motor = VESC(serial_port=left_motor_dev)
