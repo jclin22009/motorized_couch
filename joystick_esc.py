@@ -2,31 +2,11 @@ import pygame
 from pyvesc import VESC
 from threading import Thread
 import numpy as np
-import glob
-# import serial
+from detect_esc import connect_escs
 
-left_motor_dev = '/dev/cu.usbmodem10'
-right_motor_dev = '/dev/cu.usbmodem3041'
-
-reversed = False # this line of code is a certified kevin classic 😎
-
-try:
-    if reversed:
-        left_motor = VESC(serial_port=right_motor_dev)
-        right_motor = VESC(serial_port=left_motor_dev)
-    else: 
-        left_motor = VESC(serial_port=left_motor_dev)
-        right_motor = VESC(serial_port=right_motor_dev)
-
-    # arduino_dev = '/dev/cu.usbmodem1301'
-except:
-    print("\nError: Could not open one or more ports\n")
-    print("Available ports:")
-    ports = glob.glob('/dev/cu.*')
-    for port in ports:
-        print(port)
-    print("\nExiting...")
-    exit()
+# arduino_dev = '/dev/cu.usbmodem1301'
+left_motor, right_motor = connect_escs()
+# arduino = serial.Serial(port=arduino_dev, baudrate=9600)
 
 steering = 0
 motor_output = 0
@@ -112,9 +92,26 @@ def handleJoyEvent(e):
 
 left_rpm = 0
 right_rpm = 0
+MIN_RPM = 300
+
+is_stopped = False
 
 def handle_motion():
-    global left_rpm, right_rpm
+    global left_rpm, right_rpm, is_stopped
+
+    try:
+        if is_stopped and left_motor.get_rpm() >= MIN_RPM or right_motor.get_rpm() >= MIN_RPM:
+            print("Starting")
+            is_stopped = False
+        elif not is_stopped and left_motor.get_rpm() < MIN_RPM and right_motor.get_rpm() < MIN_RPM:
+            print("stopping")
+            is_stopped = True
+    except:
+        pass
+
+    if is_stopped:
+        return
+
     if braking:
         target_left_rpm = 0
         target_right_rpm = 0
