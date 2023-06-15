@@ -92,7 +92,7 @@ def handleJoyEvent(e):
 
 left_rpm = 0
 right_rpm = 0
-MIN_RPM = 300
+MIN_RPM = 400
 
 is_stopped = False
 
