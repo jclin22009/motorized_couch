@@ -9,7 +9,7 @@ pip install git+https://github.com/LiamBindle/PyVESC.git
 
 And also install the `requirements.txt` with `pip3 install -r requirements.txt`
 
-To use, run `joystick_esc.py`
+To use, run `python joystick_driving`
 
 As seen on tiktok
 

@@ -2,7 +2,6 @@ import sys
 import glob
 import serial
 from pyvesc import VESC
-import time
 
 def serial_ports():
     """ Lists serial port names
