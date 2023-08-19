@@ -2,6 +2,7 @@ import sys
 import glob
 import serial
 from pyvesc import VESC
+import time
 
 def serial_ports():
     """ Lists serial port names
@@ -50,4 +51,6 @@ def connect_escs():
                         right_vesc = vesc
                 except:
                     print("Error connecting to VESC, retrying")
+        print("No VESCs found, retrying")
+        time.sleep(1)
     return left_vesc, right_vesc

@@ -9,8 +9,6 @@ from joystick import Joystick
 MIN_RPM = 400
 
 class MotorController:
-    left_rpm = 0
-    right_rpm = 0
     joystick: Joystick
 
     is_stopped = False
@@ -20,19 +18,17 @@ class MotorController:
         self.joystick = joystick
 
     def handle_motion(self):
-        global left_rpm, right_rpm, is_stopped
-
         try:
-            if is_stopped and self.left_motor.get_rpm() >= MIN_RPM or self.right_motor.get_rpm() >= MIN_RPM:
+            if self.is_stopped and self.left_motor.get_rpm() >= MIN_RPM or self.right_motor.get_rpm() >= MIN_RPM:
                 print("Starting")
-                is_stopped = False
-            elif not is_stopped and self.left_motor.get_rpm() < MIN_RPM and self.right_motor.get_rpm() < MIN_RPM:
+                self.is_stopped = False
+            elif not self.is_stopped and self.left_motor.get_rpm() < MIN_RPM and self.right_motor.get_rpm() < MIN_RPM:
                 print("stopping")
-                is_stopped = True
+                self.is_stopped = True
         except:
             pass
 
-        if is_stopped:
+        if self.is_stopped:
             return
 
         left_speed = self.joystick.left_speed

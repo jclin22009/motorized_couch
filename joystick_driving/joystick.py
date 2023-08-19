@@ -53,8 +53,8 @@ class Joystick:
             max_r = abs(r / joy_y) if joy_y != 0 else 0
         # this is the actual throttle
         magnitude = r / max_r if max_r != 0 else 0
-        left_relative_speed = magnitude * (math.sin(theta) + math.cos(theta) / TURN_DAMPING)
-        right_relative_speed = magnitude * (math.sin(theta) - math.cos(theta) / TURN_DAMPING)
+        left_relative_speed = magnitude * (math.sin(theta) - math.cos(theta) / TURN_DAMPING)
+        right_relative_speed = magnitude * (math.sin(theta) + math.cos(theta) / TURN_DAMPING)
         self.left_speed = left_relative_speed * self.max_speed
         self.right_speed = right_relative_speed * self.max_speed
 
