@@ -21,7 +21,6 @@
 
 After logging in:
 1. Download [RealVNCViewer](https://www.realvnc.com/en/connect/download/viewer/) with the default settings and log into your RealVNC account (make an account if you don't have one).
-2. Run `vncserver` in your terminal (Putty terminal for windows). The terminal will give you a VNC desktop to log into in the format `hostname.local:1`
-3. Add a new connection in the RealVNCViewer and enter `couch.local:1` or whatever the terminal gave you.
-4. Start the connection and log into the desktop with your SSH information. 
-5. If you see the RPi Desktop, you're in!
+2. Add a new connection in the RealVNCViewer and enter `couch.local` in the `VNC Server` box.
+3. Start the connection and log into the desktop with the SSH information as before.
+4. If you see the RPi Desktop, you're in!
