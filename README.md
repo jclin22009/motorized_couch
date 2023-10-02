@@ -14,8 +14,8 @@ conda env create -f environment.yml
 
 Consider running `sudo pmset -a disablesleep 1` in laptop mode.
 
-
-
 As seen on tiktok
 
 https://www.tiktok.com/@horsebeforecouch/video/7219792981576977706
+
+![Kevin's Joystick Documentation](joystick_docs.jpeg)
