@@ -93,7 +93,7 @@ class Joystick:
     def handle_event(self, e):
         if e.type == pygame.JOYAXISMOTION:
             if e.axis == Axis.STEERING:
-                self.steering = self.handle_motion(e)
+                self.steering = -self.handle_motion(e)
             elif e.axis == Axis.THROTTLE:
                 self.throttle = -self.handle_motion(e)
         elif e.type == pygame.JOYBUTTONDOWN:
@@ -123,7 +123,6 @@ class Joystick:
             if self.handle_event(e):
                 break
             self.update_speed()
-            # print("Steering: ", self.steering, "Throttle: ", self.throttle, "Left: ", self.left_speed, "Right: ", self.right_speed)
 
 if __name__ == '__main__':
     Joystick().start()

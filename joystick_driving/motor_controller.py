@@ -28,6 +28,9 @@ class MotorController:
         except:
             pass
 
+        # TODO: Add/remove this to disable/enable push to start
+        # self.is_stopped = False
+
         if self.is_stopped:
             return
 
@@ -35,8 +38,8 @@ class MotorController:
         right_speed = self.joystick.right_speed
         abs_left_speed = abs(left_speed)
         abs_right_speed = abs(right_speed)
-        abs_left_rpm = 0 if abs_left_speed < 5 else map_range(abs_left_speed, 0, 100, 0, 10000)
-        abs_right_rpm = 0 if abs_right_speed < 5 else map_range(abs_right_speed, 0, 100, 0, 10000)
+        abs_left_rpm = 0 if abs_left_speed < 5 else map_range(abs_left_speed, 0, 400, 0, 40000)
+        abs_right_rpm = 0 if abs_right_speed < 5 else map_range(abs_right_speed, 0, 400, 0, 40000)
         target_left_rpm = np.sign(left_speed) * abs_left_rpm
         target_right_rpm = np.sign(right_speed) * abs_right_rpm
         target_left_rpm = max(0, target_left_rpm)

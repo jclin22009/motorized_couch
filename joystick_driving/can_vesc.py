@@ -12,7 +12,7 @@ class CanVESC:
 
     def get_rpm(self):
         # TODO
-        return 0
+        return 1000
 
     def stop_heartbeat(self):
         # Make sure to stop the hearbeat of the parent VESC
