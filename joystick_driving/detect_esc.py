@@ -2,6 +2,7 @@ import sys
 import glob
 import serial
 from pyvesc import VESC
+from can_vesc import CanVESC
 import time
 
 def serial_ports():
@@ -33,11 +34,10 @@ def serial_ports():
     return result
 
 def connect_escs():
-    left_id = 47
-    right_id = 56
+    left_vesc_id = 42
+    right_can_id = 78
     left_vesc = None
-    right_vesc = None
-    while left_vesc is None or right_vesc is None:
+    while left_vesc is None:
         for port in serial_ports():
             if port.startswith("/dev/tty.usbmodem"):
                 print(f"Connecting to {port}")
@@ -45,12 +45,11 @@ def connect_escs():
                     vesc = VESC(serial_port=port)
                     byte = vesc.get_measurements().__dict__['app_controller_id']
                     vesc_id = int.from_bytes(byte, byteorder='big', signed=True)
-                    if vesc_id == left_id:
+                    if vesc_id == left_vesc_id:
                         left_vesc = vesc
-                    elif vesc_id == right_id:
-                        right_vesc = vesc
                 except:
                     print("Error connecting to VESC, retrying")
         print("No VESCs found, retrying")
         time.sleep(1)
+    right_vesc = CanVESC(parent_vesc=left_vesc, can_id=right_can_id)
     return left_vesc, right_vesc
