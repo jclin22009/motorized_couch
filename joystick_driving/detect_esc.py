@@ -39,7 +39,7 @@ def connect_escs():
     left_vesc = None
     while left_vesc is None:
         for port in serial_ports():
-            if port.startswith("/dev/tty.usbmodem"):
+            if port.startswith("/dev/ttyACM"):
                 print(f"Connecting to {port}")
                 try:
                     vesc = VESC(serial_port=port)
